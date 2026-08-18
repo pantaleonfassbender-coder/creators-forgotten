@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Forgotten Creators · A Research Apparatus</title>
+<meta name="description" content="A scholarly apparatus for Todd H. Rider's Forgotten Creators: twelve chapters and five appendices indexed by printed page, 114 sections, a register of the people it names, term distributions and a citation-bound dialogue. No running text is shipped; full-text functions run on the freely available chapter files you open yourself.">
+<link rel="stylesheet" href="style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><path d='M6 26 L16 6 L26 26' fill='none' stroke='%23c9a227' stroke-width='2.4'/><circle cx='16' cy='19' r='2.6' fill='%23c9a227'/></svg>">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="brand" href="#/overview">
+    <span class="mark">△</span>
+    <span class="brandtext">
+      <strong>Forgotten Creators</strong>
+      <em>A research apparatus for Todd H. Rider's survey</em>
+    </span>
+  </a>
+  <nav id="nav">
+    <a href="#/overview" data-v="overview">Overview</a>
+    <a href="#/parts" data-v="parts">Parts</a>
+    <a href="#/sections" data-v="sections">Sections</a>
+    <a href="#/register" data-v="register">Register</a>
+    <a href="#/vocabulary" data-v="vocabulary">Vocabulary</a>
+    <a href="#/references" data-v="references">References</a>
+    <a href="#/concordance" data-v="concordance">Concordance</a>
+    <a href="#/dialogue" data-v="dialogue">Dialogue</a>
+  </nav>
+  <button id="unlockBtn" class="unlock" title="Open your own copies">
+    <span id="unlockDot" class="dot"></span><span id="unlockLabel">locked</span>
+  </button>
+</header>
+
+<main id="view"></main>
+
+<footer>
+  <p><a href="#/method">Method, sources and limits →</a> · <a href="#/privacy">Privacy</a> · <a href="#/imprint">Legal notice</a></p>
+  <p><strong>Rights.</strong> This site ships <em>no running text</em> of the book. It holds derived data only —
+  the structure of the twelve chapters and five appendices, 114 sections, printed-page anchors, counts, term
+  distributions, a register of the people it names and its bibliography — together with editorial matter
+  written for this site. The full-text functions operate on files you open in your own browser, which are
+  never uploaded.</p>
+  <p>Indexed: Todd H. Rider, <em>Forgotten Creators: How German-Speaking Scientists and Engineers Invented the
+  Modern World, And What We Can Learn from Them</em>, edition of 31 December 2025, offered as a free download
+  at <a href="https://riderinstitute.org/revolutionary-innovation/" target="_blank" rel="noopener">riderinstitute.org</a>.
+  All rights rest with the author. This site is unaffiliated with him and with the Rider Institute.</p>
+</footer>
+
+<div id="unlockModal" class="modal" hidden>
+  <div class="modalbox">
+    <button class="closex" id="closeUnlock">×</button>
+    <h2>Open your own copies</h2>
+    <p>Concordance, evidence-based dialogue and page citation of hits run <strong>entirely in your
+    browser</strong>. The book is offered as separate files by chapter; drop in as many as you like. Each
+    one is placed in the book by the printed page numbers in its running heads, not by its file name — the
+    names are opaque identifiers. Nothing is uploaded; only the passages you actively query in the dialogue
+    ever leave your machine.</p>
+    <label class="drop" id="drop">
+      <input type="file" id="pdfInput" accept="application/pdf" multiple hidden>
+      <span class="dropicon">⇪</span>
+      <span>Drop one or more chapter files here, or click to choose</span>
+      <small>Free download at riderinstitute.org · the largest block is about 98 MB</small>
+    </label>
+    <div id="unlockProgress" hidden>
+      <div class="bar"><div id="barFill"></div></div>
+      <p id="progressText" class="mono"></p>
+    </div>
+    <div id="unlockState" class="statebox"></div>
+    <h3 style="margin-top:1.4rem;font-size:1rem">Open on this device</h3>
+    <ul class="filelist" id="fileTable"></ul>
+    <div class="modalfoot">
+      <button id="forgetBtn" class="ghost">Clear all stored text</button>
+      <span class="fine">The anchors were built against the edition of 31 December 2025. An earlier printing
+      will still search, but its pages will not line up.</span>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>
