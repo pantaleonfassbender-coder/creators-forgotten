@@ -2,6 +2,7 @@
 import * as C from "./corpus.js";
 import { corpus } from "./corpus.js";
 import { renderDialogue } from "./dialogue.js";
+import { renderMap } from "./map.js";
 
 export const D = {};
 const view = document.getElementById("view");
@@ -15,9 +16,9 @@ export const debounce = (fn, ms) => { let t; return (...a) => { clearTimeout(t);
 const HUE = ["#c9a227", "#9db8a4", "#c07a5a", "#a89bc4", "#7fa9c9", "#c9968f", "#8fb3a0",
   "#b9a06a", "#a0b6c9", "#c4a0b4", "#93a97f", "#c98f6a", "#8aa8b8", "#b8a2c9",
   "#c9b98f", "#9fc0a8", "#c98f8f"];
-const unitColor = i => HUE[i % HUE.length];
+export const unitColor = i => HUE[i % HUE.length];
 const unitOf = nr => (D.units || []).find(u => String(u.nr) === String(nr));
-const sachUnits = () => (D.units || []).filter(u => u.art !== "apparat");
+export const sachUnits = () => (D.units || []).filter(u => u.art !== "apparat");
 
 async function boot() {
   const names = ["korpus", "units", "sections", "terms", "keyness", "persons", "network", "biblio"];
@@ -33,7 +34,7 @@ const ROUTES = {
   overview: viewOverview, parts: viewParts, sections: viewSections,
   register: viewRegister, vocabulary: viewVocabulary, references: viewReferences,
   concordance: viewConcordance, method: viewMethod, privacy: viewPrivacy, imprint: viewImprint,
-  dialogue: a => renderDialogue(view, a),
+  dialogue: a => renderDialogue(view, a), map: () => renderMap(view),
 };
 function route() {
   const h = (location.hash || "#/overview").slice(2).split("/");
@@ -96,8 +97,9 @@ function viewOverview() {
         <span class="tag">What is here without anything further</span>
         <h3>The apparatus</h3>
         <p style="font-size:.92rem;color:var(--fg2)">Chapter and appendix structure, all 114 sections with
-        their page ranges, term distributions, a register of the people the book names, the network in
-        which they appear together, and its bibliography. Derived data throughout — no running text.</p>
+        their page ranges, term distributions, a <a href="#/map">concept map</a> of its vocabulary, a
+        register of the people the book names, the network in which they appear together, and its
+        bibliography. Derived data throughout — no running text.</p>
         <p><a class="btn" href="#/parts">Browse the parts →</a></p>
       </div>
       <div class="card" id="unlockCard">
@@ -447,6 +449,25 @@ function viewMethod() {
       records only that the book mentions them together — not collaboration, influence or acquaintance.</p>
     </div>
 
+    <div class="panel"><h2>The concept maps</h2>
+      <p class="readable">Three maps under <a href="#/map">Map</a>, each honest about its window. The
+      <em>terrain</em> places the most frequent content words by distributional affinity: two terms sit
+      near one another when their densities across the seventeen parts run parallel, measured as cosine
+      similarity, with the three strongest affinities per term drawn as lines. Seventeen parts is a wide
+      window — words peaking in the same appendix will be joined whether or not they have anything else in
+      common — so the clusters carry meaning and the individual line carries little. A stated list of
+      function words, month names, bare given names and repair fragments is excluded, since they would sit
+      in the map as if they were concepts.</p>
+      <p class="readable">The <em>concept map</em> is the sharper instrument and runs only on the files you
+      open: for a chosen word it finds the terms over-represented on the very pages where that word stands,
+      scored by the same log-likelihood used for keyness, and joins companions that share those pages. It
+      inherits every limit of your selection — open one chapter and the map is a map of that chapter — and
+      the gap at pages 4873–5074 is as invisible to it as to the concordance. Every node leads back to the
+      concordance, so nothing in the picture has to be taken on trust.</p>
+      <p class="readable">The <em>caption network</em> renders the figure-caption co-occurrences described
+      above. Its names come from the same extraction as the register, noise included.</p>
+    </div>
+
     <div class="panel"><h2>Known limits</h2>
       <ul style="color:var(--fg2);font-size:.93rem">
         <li>The page anchors are tied to the edition of 31 December 2025. An earlier printing — the 2022
@@ -596,7 +617,7 @@ function viewImprint() {
 
 /* ============================================================ UNLOCKING */
 const modal = document.getElementById("unlockModal");
-function openUnlock() { modal.hidden = false; drawFileTable(); }
+export function openUnlock() { modal.hidden = false; drawFileTable(); }
 document.getElementById("unlockBtn").onclick = openUnlock;
 document.getElementById("closeUnlock").onclick = () => { modal.hidden = true; };
 modal.addEventListener("click", e => { if (e.target === modal) modal.hidden = true; });

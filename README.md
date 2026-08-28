@@ -11,6 +11,17 @@ page ranges and counts, 114 sections, term distributions, log-likelihood keyness
 a register of 592 people, the figure-caption co-occurrence network, and 1,382
 bibliography entries.
 
+## Concept maps
+
+Three maps under *Map*, each with a different window. The **terrain** places
+the most frequent content words by distributional affinity across the
+seventeen parts — computed in the browser from the shipped distributions. The
+**concept map** charts the company a chosen word keeps: log-likelihood
+collocates on the very pages where it occurs, computed from the chapter files
+the reader opens, with every node leading back to the concordance. The
+**caption network** renders the shipped figure-caption co-occurrences. Layout
+is a small Fruchterman–Reingold implementation in `map.js`; no library.
+
 ## What was awkward, and how it was handled
 
 The book is distributed as size-balanced blocks of about ninety megabytes, not

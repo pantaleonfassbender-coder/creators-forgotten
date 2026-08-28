@@ -172,12 +172,18 @@ export function citeFor(seite) {
 /* ------------------------------------------------------------- index */
 export function reindex() {
   corpus._inv = new Map(); corpus._chunks = [];
+  corpus._gf = new Map(); corpus._gtotal = 0;
   for (const [p, txt] of corpus.page) {
     if (!txt) continue;
-    for (const t of new Set(tokens(txt))) {
+    const tk = tokens(txt);
+    for (const t of new Set(tk)) {
       if (t.length < 3) continue;
       let a = corpus._inv.get(t); if (!a) corpus._inv.set(t, (a = []));
       a.push(p);
+    }
+    for (const t of tk) {
+      if (t.length < 3 || STOP.has(t)) continue;
+      corpus._gtotal++; corpus._gf.set(t, (corpus._gf.get(t) || 0) + 1);
     }
     const clean = txt.replace(/\s+/g, " ").trim();
     if (clean.length < 140) continue;
@@ -254,6 +260,51 @@ export function hitCounts(q) {
     res[c.unit] = (res[c.unit] || 0) + (corpus.page.get(p).replace(/\s+/g, " ").match(rx) || []).length;
   }
   return res;
+}
+
+/* --------------------------------------------------------- collocates */
+/** Content words over-represented on the pages where the query occurs,
+    scored by log-likelihood against the rest of what is open. Feeds the
+    concept map; a link records co-mention on a page and nothing more. */
+export function collocates(q, { top = 24, drop = null } = {}) {
+  if (!isOpen() || !corpus._gf) return null;
+  const terms = tokens(q).filter(t => t.length > 2);
+  if (!terms.length) return null;
+  const pp = pagesWith(terms);
+  if (!pp.length) return { pages: 0, nodes: [], links: [] };
+  const inSet = new Set(pp);
+  const tf = new Map(); let ct = 0;
+  for (const p of pp) for (const t of tokens(corpus.page.get(p))) {
+    if (t.length < 3 || STOP.has(t)) continue;
+    ct++; tf.set(t, (tf.get(t) || 0) + 1);
+  }
+  const G = corpus._gtotal, rest = Math.max(1, G - ct);
+  const scored = [];
+  for (const [t, a] of tf) {
+    if (a < 3 || terms.includes(t) || (drop && drop.has(t))) continue;
+    const g = corpus._gf.get(t) || a, b = Math.max(0, g - a);
+    if (a / ct <= b / rest) continue;
+    const e1 = ct * g / G, e2 = rest * g / G;
+    const ll = 2 * (a * Math.log(a / e1) + (b > 0 ? b * Math.log(b / e2) : 0));
+    scored.push([t, a, ll]);
+  }
+  scored.sort((x, y) => y[2] - x[2]);
+  const nodes = scored.slice(0, top).map(([w, f, ll]) => {
+    const on = (corpus._inv.get(w) || []).filter(p => inSet.has(p));
+    const per = new Map();
+    for (const p of on) { const c = citeFor(p); if (c) per.set(c.unit, (per.get(c.unit) || 0) + 1); }
+    const unit = [...per.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
+    return { w, f, ll: +ll.toFixed(1), on, unit };
+  });
+  const links = [];
+  for (let i = 0; i < nodes.length; i++) for (let j = i + 1; j < nodes.length; j++) {
+    const B = new Set(nodes[j].on);
+    let sh = 0; for (const p of nodes[i].on) if (B.has(p)) sh++;
+    const need = Math.max(2, Math.ceil(Math.min(nodes[i].on.length, B.size) * 0.35));
+    if (sh >= need) links.push({ a: i, b: j, w: sh });
+  }
+  links.sort((x, y) => y.w - x.w);
+  return { pages: pp.length, nodes, links: links.slice(0, 60) };
 }
 
 export function retrieve(query, k = 10) {
